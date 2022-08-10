@@ -1,0 +1,5 @@
+Start Date: 2020-01-28
+End Date: 2020-08-29
+<lmfit.minimizer.MinimizerResult object at 0x7f2b4c2dbd30>
+Incubation period: 2.00
+Infectious period: 9.00

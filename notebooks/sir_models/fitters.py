@@ -95,7 +95,7 @@ class BaseFitter:
         return best_result
 
     def fit(self, model, data, *args, **kwargs):
-        params = model.get_fit_params(data)
+        params = model.get_fit_params(data, population = self.population_size, population_density= self.population_density)
         t = np.arange(len(data))
 
         if not self.brute_params:
@@ -151,10 +151,14 @@ class CurveFitter(BaseFitter):
 
 class HiddenCurveFitter(CurveFitter):
     def __init__(self, *args,
+                 population_size,
+                 population_density,
                  new_recoveries_col='recovered_per_day',
                  weights=None,
                  **kwargs):
         super().__init__(*args, **kwargs)
+        self.population_size = population_size
+        self.population_density = population_density
         self.new_recoveries_col = new_recoveries_col
         self.weights = weights
 

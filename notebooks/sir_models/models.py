@@ -13,9 +13,10 @@ class SEIR:
         self.stepwise_size = stepwise_size
         self.params = params
 
-    def get_fit_params(self, data):
+    def get_fit_params(self, data, population=12000000, population_density=4752):
         params = Parameters()
-        params.add("population", value=12_000_000, vary=False)
+        params.add("population", value=population, vary=False)
+        params.add("pop_density", value=population_density, vary=False)
 
         params.add("sigmoid_r", value=20, min=1, max=30, brute_step=1, vary=False)
         params.add("sigmoid_c", value=0.5, min=0, max=1, brute_step=0.1, vary=False)
@@ -36,7 +37,10 @@ class SEIR:
         piece_size = self.stepwise_size
         for t in range(piece_size, len(data), piece_size):
             params.add(f"t{t}_q", value=0.5, min=0, max=0.99, brute_step=0.1, vary=True)
+        
         return params
+
+
 
     def get_initial_conditions(self, data):
         # Simulate such initial params as to obtain as many deaths as in data
@@ -59,6 +63,8 @@ class SEIR:
         S0 = S[-1]
         return (S0, E0, I0, Rec0, D0)
 
+
+
     def compute_daily_values(self, S, E, I, R, D):
         new_dead = (np.diff(D))
         new_recovered = (np.diff(R))
@@ -67,22 +73,34 @@ class SEIR:
 
         return new_exposed, new_infected, new_recovered, new_dead
 
+
+
     def get_step_rt_beta(self, t, params):
+        moscow_p_density = 4752 ## We'll use this as our baseline
+        p_density_multiplier = (params['pop_density'] / moscow_p_density)
+
         r0 = params['r0']
         gamma = params['gamma']
         sigmoid_r = params['sigmoid_r']
         sigmoid_c = params['sigmoid_c']
 
         q_coefs = {}
+        #print('Quarantine:', [k for k, v in params.items() if k.startswith('t')])
         for key, value in params.items():
             if key.startswith('t'):
                 coef_t = int(key.split('_')[0][1:])
                 q_coefs[coef_t] = value.value
 
         quarantine_mult = stepwise_soft(t, q_coefs, r=sigmoid_r, c=sigmoid_c)
-        rt = r0 - quarantine_mult * r0
-        beta = rt * gamma
+        
+        rt = r0 - (quarantine_mult * r0)
+        #print(rt, p_density_multiplier, r0 - (quarantine_mult * r0))
+        #print(p_density_multiplier, params['pop_density'], rt * gamma, rt * gamma * p_density_multiplier)
+        beta = rt * gamma 
         return quarantine_mult, rt, beta
+
+
+
 
     def step(self, initial_conditions, t, params, history_store):
         population = params['population']
@@ -141,9 +159,8 @@ class SEIR:
 
 
 class SEIRHidden(SEIR):
-    def get_fit_params(self, data):
-        params = super().get_fit_params(data)
-
+    def get_fit_params(self, data, population=12000000, population_density=4752):
+        params = super().get_fit_params(data, population=population, population_density=population_density)
         params.add("pi", value=0.2, min=0.15, max=0.3, brute_step=0.01, vary=True)  # Probability to discover a new infected case in a day
         params.add("pd", value=0.35, min=0.15, max=0.9, brute_step=0.05, vary=True)  # Probability to discover a death
         return params

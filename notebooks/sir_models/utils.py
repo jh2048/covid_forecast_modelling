@@ -68,6 +68,8 @@ def stepwise_soft(t, coefficients, r=20, c=0.5):
 def eval_on_select_dates_and_k_days_ahead(df,
                                      eval_func,
                                      eval_dates,
+                                     population_size, 
+                                     population_density,
                                      k=7,
                                      verbose=True,
                                      n_jobs=-1):
@@ -80,7 +82,7 @@ def eval_on_select_dates_and_k_days_ahead(df,
         train_t = np.arange(len(train_df))
         eval_t = np.arange(train_t[-1] + 1, t + k, 1)
 
-        model, fitter, test_states = eval_func(train_df, t, train_t, eval_t)
+        model, fitter, test_states = eval_func(train_df, t, train_t, eval_t, population_size, population_density)
 
         test_df = df.iloc[eval_t]
 

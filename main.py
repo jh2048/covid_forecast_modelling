@@ -21,7 +21,7 @@ def prepare_data(df, date_col_name, state, split_date='2020-07-29'):
     df_state.dropna(subset=['deaths_per_day_ma7', 'infected_per_day_ma7','recovered_per_day_ma7'], how='any', inplace=True)
 
     train_subset = df_state[df_state[date_col_name] <= pd.to_datetime(split_date)]
-    test_subset = df[df[date_col_name]  > train_subset[date_col_name].max()]
+    test_subset = df_state[df_state[date_col_name]  > train_subset[date_col_name].max()]
     
     return df_state, train_subset, test_subset
 
@@ -126,6 +126,7 @@ def visualisations_training(train_subset, daily_df, D, Dv, state):
     plt.legend()
     plt.title('Total deaths')
     plt.savefig(f'figures/{state}/total_deaths_prediction.png')
+    plt.clf()
 
     plt.figure(figsize=(10, 7))
     plt.plot(daily_df.new_dead_visible, label='daily deaths_visible', color='black', linestyle='dashed')
@@ -134,6 +135,7 @@ def visualisations_training(train_subset, daily_df, D, Dv, state):
     plt.legend()
     plt.title('Daily deaths')
     plt.savefig(f'figures/{state}/daily_deaths_prediction.png')
+    plt.clf()
 
     plt.figure(figsize=(10, 7))
     plt.plot(train_subset.date, train_subset['total_infected'], label='ground truth')
@@ -142,7 +144,9 @@ def visualisations_training(train_subset, daily_df, D, Dv, state):
     plt.legend()
     plt.title('Total infections')
     plt.savefig(f'figures/{state}/total_infections_prediction.png')
+    plt.clf()
 
+    print(train_subset[['date', 'infected_per_day_ma7']])
     plt.figure(figsize=(10, 7))
     plt.plot(train_subset.date, train_subset['infected_per_day_ma7'], label='ground truth')
     plt.plot(daily_df.new_infected_visible, label='daily infected_visible', color='red')
@@ -150,6 +154,7 @@ def visualisations_training(train_subset, daily_df, D, Dv, state):
     plt.legend()
     plt.title('Daily infections')
     plt.savefig(f'figures/{state}/daily_infections_prediction.png')
+    plt.clf()
 
 
 
@@ -163,7 +168,7 @@ def visulations_forecasting(train_subset, test_subset, test_daily_df, daily_df, 
     plt.legend()
     plt.title('Total deaths')
     plt.savefig(f'figures/{state}/daily_infections_prediction.png')
-
+    plt.clf()
 
     plt.figure(figsize=(10, 7))
     plt.plot(train_subset.date, train_subset['deaths_per_day'], label='train ground truth')
@@ -174,6 +179,7 @@ def visulations_forecasting(train_subset, test_subset, test_daily_df, daily_df, 
     plt.legend()
     plt.title('Daily deaths')
     plt.savefig(f'figures/{state}/daily_infections_prediction.png')
+    plt.clf()
 
     plt.figure(figsize=(10, 7))
     plt.plot(train_subset.date, train_subset['recovered_per_day'], label='train ground truth')
@@ -183,7 +189,7 @@ def visulations_forecasting(train_subset, test_subset, test_daily_df, daily_df, 
     plt.legend()
     plt.title('Daily recoveries')
     plt.savefig(f'figures/{state}/daily_infections_prediction.png')
-
+    plt.clf()
 
     plt.figure(figsize=(10, 7))
     plt.plot(train_subset.date, train_subset['total_recovered'], label='train ground truth')
@@ -193,7 +199,7 @@ def visulations_forecasting(train_subset, test_subset, test_daily_df, daily_df, 
     plt.legend()
     plt.title('Total recovered')
     plt.savefig(f'figures/{state}/daily_infections_prediction.png')
-
+    plt.clf()
 
     plt.figure(figsize=(10, 7))
     plt.plot(train_subset.date, train_subset['infected_per_day'], label='train ground truth')
@@ -203,6 +209,7 @@ def visulations_forecasting(train_subset, test_subset, test_daily_df, daily_df, 
     plt.legend()
     plt.title('Daily infections')
     plt.savefig(f'figures/{state}/daily_infections_prediction.png')
+    plt.clf()
 
 
 
@@ -243,7 +250,6 @@ def visualisation_validation(train_subset, daily_df, x_dates, model_pred_D, true
     plt.legend()
     plt.ylabel('Mean Absolute Error')
     plt.title('MAE as a function of time')
-    plt.show()
 
 
     plt.figure(figsize=(10, 7))
@@ -251,7 +257,6 @@ def visualisation_validation(train_subset, daily_df, x_dates, model_pred_D, true
     plt.scatter(x_dates, [v[-1] for v in baseline_pred_D], label='Baseline pred dead')
     plt.scatter(x_dates, [v[-1] for v in model_pred_D], label='Model pred dead')
     plt.legend()
-    plt.show()
 
 
     plt.figure(figsize=(10, 10))
@@ -261,7 +266,7 @@ def visualisation_validation(train_subset, daily_df, x_dates, model_pred_D, true
     plt.plot(daily_df.new_infected_invisible, label='Model: infected invisible', color='red', alpha=0.5, linestyle='dashed')
     plt.legend(loc="upper center")
     plt.ylabel('Infected per day')
-    plt.xlim(pd.to_datetime('2020-04-01'), pd.to_datetime('2021-02-01'))
+
 
     plt.subplot(3, 1, 2, sharex=ax1)
     plt.plot(train_subset.date, train_subset['recovered_per_day'], label='Historical data on recoveries')
@@ -269,7 +274,7 @@ def visualisation_validation(train_subset, daily_df, x_dates, model_pred_D, true
     plt.plot(daily_df.new_recovered_invisible, label='Model: recovered invisible', color='green', alpha=0.5, linestyle='dashed')
     plt.legend(loc="upper center")
     plt.ylabel('Recovered per day')
-    plt.xlim(pd.to_datetime('2020-04-01'), pd.to_datetime('2021-02-01'))
+
 
     plt.subplot(3, 1, 3, sharex=ax1)
     plt.plot(train_subset.date, train_subset['deaths_per_day'], label='Historical data on deaths')
@@ -277,12 +282,11 @@ def visualisation_validation(train_subset, daily_df, x_dates, model_pred_D, true
     plt.plot(daily_df.new_dead_invisible, label='Model: deaths invisible', color='black', alpha=0.5, linestyle='dashed')
     plt.legend(loc="upper center")
     plt.ylabel('Deaths per day')
-    plt.xlim(pd.to_datetime('2020-04-01'), pd.to_datetime('2021-01-01'))
     plt.xlabel('Days')
 
     plt.tight_layout()
     plt.savefig(f'figures/{state}/daily_infected_dead_recovered_train.png')
-    plt.show()
+    plt.clf()
 
 
 def plot_eval_result(ix, first=False):
@@ -323,20 +327,26 @@ if __name__ == '__main__':
 
         ## Prepare dataset
         df_state, train_subset, test_subset = prepare_data(df, 'ObservationDate', state)
+        with open(f'figures/{state_filename}/log.txt', 'w') as f:
+            f.write(f'Start Date: {str(min(df_state.ObservationDate))}\n')
+            f.write(f'End Date: {str(max(df_state.ObservationDate))}\n')
+        f.close()
 
         ## Initialise Model
+        print(train_subset['TPopulation1July'], train_subset['TPopulation1July'].unique())
         population_size = train_subset['TPopulation1July'].unique()[0]*1000
+        print('Population size:', population_size)
         population_density = train_subset['PopDensity'].unique()[0]
         model, fitter = initialise_model(train_subset, population_size, population_density)
-        with open(f'figures/{state_filename}/fitter_results.txt', 'w') as f:
-            f.write(str(fitter.result))
+        with open(f'figures/{state_filename}/log.txt', 'a') as f:
+            print(fitter.result, file=f)
         f.close()
 
         ## Record incubation days
         incubation_days = model.params['incubation_days'].value
         infectious_days = model.params['infectious_days'].value
-        with open(f'figures/{state_filename}/incubation_period.txt', 'w') as f:
-            f.write(f'Incubation period: {incubation_days:.2f}')
+        with open(f'figures/{state_filename}/log.txt', 'a') as f:
+            f.write(f'Incubation period: {incubation_days:.2f}\n')
             f.write(f'Infectious period: {infectious_days:.2f}')
         f.close()
 
@@ -350,8 +360,8 @@ if __name__ == '__main__':
 
         ## 30 Day Eval
         K = 30
-        last_day = df.date.max() - pd.to_timedelta(K, unit='D')
-        eval_dates = pd.date_range(start='2020-02-01', end=last_day)[::20]
+        last_day = df_state.date.max() - pd.to_timedelta(K, unit='D')
+        eval_dates = pd.date_range(start='2020-03-01', end=last_day)[::20]
 
         models, fitters, model_predictions, train_dfs, test_dfs = eval_on_select_dates_and_k_days_ahead(df_state,
                                                                                             eval_func=eval_hidden_moscow, 
@@ -366,10 +376,10 @@ if __name__ == '__main__':
         overall_errors_model = [mean_absolute_error(true, pred) for true, pred in zip(true_D, model_pred_D)]
         overall_errors_baseline = [mean_absolute_error(true, pred) for true, pred in zip(true_D, baseline_pred_D)]
 
-        with open(f'figures/{state_filename}/model_error_rate.txt', 'w'):
-            print(f'Mean overall error baseline: {np.mean(overall_errors_baseline).round(3)}')
-            print(f'Mean overall error model: {np.mean(overall_errors_model).round(3)}')
-
+        with open(f'figures/{state_filename}/model_error_rate.txt', 'w') as f:
+            f.write(f'\nMean overall error baseline: {np.mean(overall_errors_baseline).round(3)}')
+            f.write(f'\nMean overall error model: {np.mean(overall_errors_model).round(3)}')
+        f.close()
         visualisation_validation(train_subset, daily_df, x_dates, model_pred_D, true_D, baseline_pred_D, overall_errors_model, overall_errors_baseline)
 
         try:
