@@ -125,7 +125,7 @@ def visualisations_training(train_subset, daily_df, D, Dv, state):
     plt.plot(train_subset.date, Dv, label='predicted visible', color='black')
     plt.legend()
     plt.title('Total deaths')
-    plt.savefig(f'figures/{state}/total_deaths_prediction.png')
+    plt.savefig(f'figures_popdensity/{state}/total_deaths_prediction.png')
     plt.clf()
 
     plt.figure(figsize=(10, 7))
@@ -134,7 +134,7 @@ def visualisations_training(train_subset, daily_df, D, Dv, state):
     plt.plot(train_subset.date, train_subset['deaths_per_day_ma7'], label='ground truth')
     plt.legend()
     plt.title('Daily deaths')
-    plt.savefig(f'figures/{state}/daily_deaths_prediction.png')
+    plt.savefig(f'figures_popdensity/{state}/daily_deaths_prediction.png')
     plt.clf()
 
     plt.figure(figsize=(10, 7))
@@ -143,7 +143,7 @@ def visualisations_training(train_subset, daily_df, D, Dv, state):
     plt.plot(daily_df.new_infected_invisible.cumsum(), label='predicted invisible', color='red',  linestyle='dashed' )
     plt.legend()
     plt.title('Total infections')
-    plt.savefig(f'figures/{state}/total_infections_prediction.png')
+    plt.savefig(f'figures_popdensity/{state}/total_infections_prediction.png')
     plt.clf()
 
     print(train_subset[['date', 'infected_per_day_ma7']])
@@ -153,7 +153,7 @@ def visualisations_training(train_subset, daily_df, D, Dv, state):
     plt.plot(daily_df.new_infected_invisible, label='daily infected_invisible', color='red', linestyle='dashed')
     plt.legend()
     plt.title('Daily infections')
-    plt.savefig(f'figures/{state}/daily_infections_prediction.png')
+    plt.savefig(f'figures_popdensity/{state}/daily_infections_prediction.png')
     plt.clf()
 
 
@@ -167,7 +167,7 @@ def visulations_forecasting(train_subset, test_subset, test_daily_df, daily_df, 
     plt.plot(test_subset.date, test_Dv, label='test forecasted visible', color='black', linestyle='dashed')
     plt.legend()
     plt.title('Total deaths')
-    plt.savefig(f'figures/{state}/daily_infections_prediction.png')
+    plt.savefig(f'figures_popdensity/{state}/daily_infections_prediction.png')
     plt.clf()
 
     plt.figure(figsize=(10, 7))
@@ -178,7 +178,7 @@ def visulations_forecasting(train_subset, test_subset, test_daily_df, daily_df, 
     plt.plot(daily_df.new_dead_visible, label='daily deaths_visible tain', color='black', alpha=0.5, linestyle='dashed')
     plt.legend()
     plt.title('Daily deaths')
-    plt.savefig(f'figures/{state}/daily_infections_prediction.png')
+    plt.savefig(f'figures_popdensity/{state}/daily_infections_prediction.png')
     plt.clf()
 
     plt.figure(figsize=(10, 7))
@@ -188,7 +188,7 @@ def visulations_forecasting(train_subset, test_subset, test_daily_df, daily_df, 
     plt.plot(test_daily_df.new_recovered_visible, label='test forecasted visible', color='green', linestyle=':')
     plt.legend()
     plt.title('Daily recoveries')
-    plt.savefig(f'figures/{state}/daily_infections_prediction.png')
+    plt.savefig(f'figures_popdensity/{state}/daily_infections_prediction.png')
     plt.clf()
 
     plt.figure(figsize=(10, 7))
@@ -198,7 +198,7 @@ def visulations_forecasting(train_subset, test_subset, test_daily_df, daily_df, 
     plt.plot(test_subset.date, test_Rv, label='test forecasted visible', color='green', linestyle='dashed')
     plt.legend()
     plt.title('Total recovered')
-    plt.savefig(f'figures/{state}/daily_infections_prediction.png')
+    plt.savefig(f'figures_popdensity/{state}/daily_infections_prediction.png')
     plt.clf()
 
     plt.figure(figsize=(10, 7))
@@ -208,7 +208,7 @@ def visulations_forecasting(train_subset, test_subset, test_daily_df, daily_df, 
     plt.plot(test_daily_df.new_infected_visible, label='test forecasted visible', color='red', linestyle='dashed')
     plt.legend()
     plt.title('Daily infections')
-    plt.savefig(f'figures/{state}/daily_infections_prediction.png')
+    plt.savefig(f'figures_popdensity/{state}/daily_infections_prediction.png')
     plt.clf()
 
 
@@ -285,7 +285,7 @@ def visualisation_validation(train_subset, daily_df, x_dates, model_pred_D, true
     plt.xlabel('Days')
 
     plt.tight_layout()
-    plt.savefig(f'figures/{state}/daily_infected_dead_recovered_train.png')
+    plt.savefig(f'figures_popdensity/{state}/daily_infected_dead_recovered_train.png')
     plt.clf()
 
 
@@ -322,12 +322,12 @@ if __name__ == '__main__':
         print(state)
         ## Create folder for each state
         state_filename = state.strip()
-        if not os.path.exists(f'figures/{state_filename}'):
-            os.mkdir(f'figures/{state_filename}')
+        if not os.path.exists(f'figures_popdensity/{state_filename}'):
+            os.mkdir(f'figures_popdensity/{state_filename}')
 
         ## Prepare dataset
         df_state, train_subset, test_subset = prepare_data(df, 'ObservationDate', state)
-        with open(f'figures/{state_filename}/log.txt', 'w') as f:
+        with open(f'figures_popdensity/{state_filename}/log.txt', 'w') as f:
             f.write(f'Start Date: {str(min(df_state.ObservationDate))}\n')
             f.write(f'End Date: {str(max(df_state.ObservationDate))}\n')
         f.close()
@@ -338,14 +338,14 @@ if __name__ == '__main__':
         print('Population size:', population_size)
         population_density = train_subset['PopDensity'].unique()[0]
         model, fitter = initialise_model(train_subset, population_size, population_density)
-        with open(f'figures/{state_filename}/log.txt', 'a') as f:
+        with open(f'figures_popdensity/{state_filename}/log.txt', 'a') as f:
             print(fitter.result, file=f)
         f.close()
 
         ## Record incubation days
         incubation_days = model.params['incubation_days'].value
         infectious_days = model.params['infectious_days'].value
-        with open(f'figures/{state_filename}/log.txt', 'a') as f:
+        with open(f'figures_popdensity/{state_filename}/log.txt', 'a') as f:
             f.write(f'Incubation period: {incubation_days:.2f}\n')
             f.write(f'Infectious period: {infectious_days:.2f}')
         f.close()
@@ -376,7 +376,7 @@ if __name__ == '__main__':
         overall_errors_model = [mean_absolute_error(true, pred) for true, pred in zip(true_D, model_pred_D)]
         overall_errors_baseline = [mean_absolute_error(true, pred) for true, pred in zip(true_D, baseline_pred_D)]
 
-        with open(f'figures/{state_filename}/model_error_rate.txt', 'w') as f:
+        with open(f'figures_popdensity/{state_filename}/model_error_rate.txt', 'w') as f:
             f.write(f'\nMean overall error baseline: {np.mean(overall_errors_baseline).round(3)}')
             f.write(f'\nMean overall error model: {np.mean(overall_errors_model).round(3)}')
         f.close()

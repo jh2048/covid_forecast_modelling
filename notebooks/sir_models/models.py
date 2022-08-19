@@ -90,10 +90,13 @@ class SEIR:
             if key.startswith('t'):
                 coef_t = int(key.split('_')[0][1:])
                 q_coefs[coef_t] = value.value
-
+                
+        print('PARAMS:', params.items())
+        print('Q_COEFS', q_coefs)
         quarantine_mult = stepwise_soft(t, q_coefs, r=sigmoid_r, c=sigmoid_c)
+        #quarantine_mult = stepwise_soft(t, q_coefs, r=sigmoid_r, c=sigmoid_c)
         
-        rt = r0 - (quarantine_mult * r0)
+        rt = r0 - (quarantine_mult * r0) + (p_density_multiplier * r0)
         #print(rt, p_density_multiplier, r0 - (quarantine_mult * r0))
         #print(p_density_multiplier, params['pop_density'], rt * gamma, rt * gamma * p_density_multiplier)
         beta = rt * gamma 
