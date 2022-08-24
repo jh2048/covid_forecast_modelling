@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 from copy import deepcopy
-import lmfit
+import math
 from scipy.integrate import odeint
 from lmfit import Parameters
 from .utils import stepwise_soft, shift
@@ -77,7 +77,7 @@ class SEIR:
 
     def get_step_rt_beta(self, t, params):
         moscow_p_density = 4752 ## We'll use this as our baseline
-        p_density_multiplier = (params['pop_density'] / moscow_p_density)
+        p_density_multiplier = math.log(params['pop_density'] / moscow_p_density)
 
         r0 = params['r0']
         gamma = params['gamma']
@@ -91,15 +91,14 @@ class SEIR:
                 coef_t = int(key.split('_')[0][1:])
                 q_coefs[coef_t] = value.value
                 
-        print('PARAMS:', params.items())
-        print('Q_COEFS', q_coefs)
         quarantine_mult = stepwise_soft(t, q_coefs, r=sigmoid_r, c=sigmoid_c)
         #quarantine_mult = stepwise_soft(t, q_coefs, r=sigmoid_r, c=sigmoid_c)
         
-        rt = r0 - (quarantine_mult * r0) + (p_density_multiplier * r0)
+        rt = r0 - (quarantine_mult * r0) + p_density_multiplier
         #print(rt, p_density_multiplier, r0 - (quarantine_mult * r0))
         #print(p_density_multiplier, params['pop_density'], rt * gamma, rt * gamma * p_density_multiplier)
         beta = rt * gamma 
+        #print(f'R0: {r0}, Beta: {beta}, Quarantine_mult: {quarantine_mult}, r0+Q: {quarantine_mult*r0}, popul dens: {p_density_multiplier}, pop_den + r0: {p_density_multiplier*r0}, q_coefs: {q_coefs}, t={t}, gamma: {gamma}, rt: {rt}')
         return quarantine_mult, rt, beta
 
 

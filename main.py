@@ -18,7 +18,9 @@ from notebooks.sir_models.utils import stepwise, eval_on_select_dates_and_k_days
 ## Data Preparation
 def prepare_data(df, date_col_name, state, split_date='2020-07-29'):
     df_state = df[df.State == state]
+
     df_state.dropna(subset=['deaths_per_day_ma7', 'infected_per_day_ma7','recovered_per_day_ma7'], how='any', inplace=True)
+    
 
     train_subset = df_state[df_state[date_col_name] <= pd.to_datetime(split_date)]
     test_subset = df_state[df_state[date_col_name]  > train_subset[date_col_name].max()]
@@ -319,7 +321,7 @@ if __name__ == '__main__':
 
     
     for state in df.State.unique():
-        print(state)
+        print(state,  '-----------------------------------------------------------')
         ## Create folder for each state
         state_filename = state.strip()
         if not os.path.exists(f'figures_popdensity/{state_filename}'):
